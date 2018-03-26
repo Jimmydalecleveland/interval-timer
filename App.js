@@ -35,13 +35,14 @@ export default class App extends React.Component {
     this.state = {
       timerStatus: 'stopped',
       time: { m: 0, s: 0 },
+      userInput: '0000',
       intervalTime: 0,
       timerMessage: '',
     };
   }
 
   startTimer() {
-    this.setState({ timerStatus: 'started', timerMessage: '' });
+    this.setState({ timerStatus: 'started', timerMessage: '', intervalTime: this.state.userInput });
 
     this.timer = setInterval(() => {
       const newTime = this.state.intervalTime > 0 ? this.state.intervalTime - 1 : 0;
@@ -69,6 +70,18 @@ export default class App extends React.Component {
     this.setState({ timerStatus: 'stopped', timerMessage: "Time's Up!" });
   }
 
+  updateInput(userInput) {
+    let newInput = userInput.replace(/:/, '');
+    console.log('input after colon strip: ', newInput);
+
+    if (newInput.length > 2) {
+      newInput = `${newInput.slice(-newInput.length, -2)}:${newInput.slice(-2, newInput.length)}`;
+    }
+
+    console.log('input before setState:', newInput);
+    this.setState({ userInput: newInput });
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -81,8 +94,11 @@ export default class App extends React.Component {
             style={{ height: 60, fontSize: 24 }}
             keyboardType="numeric"
             placeholder="mm:ss"
-            maxLength={4}
-            onChangeText={intervalTime => this.setState({ intervalTime })}
+            maxLength={5}
+            selectTextOnFocus
+            onChangeText={userInput => this.updateInput(userInput)}
+            defaultValue="0000"
+            value={this.state.userInput}
           />
           <Button
             disabled={this.state.timerStatus === 'started'}
